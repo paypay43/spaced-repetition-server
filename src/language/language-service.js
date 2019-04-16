@@ -45,6 +45,26 @@ const LanguageService = {
           wordIncorrectCount: word[0].incorrect_count
         };
       });
+  },
+
+  correctAnswer(db, head, answer) {
+    return db
+      .from('word')
+      .select(
+        'translation',
+        'correct_count',
+        'incorrect_count'
+      )
+      .where('word.id', head)
+      .then(word => {
+        if (word.translation !== answer) {
+          return 'incorrect';
+        }
+
+      })
+    
+    
+
   }
 };
 
