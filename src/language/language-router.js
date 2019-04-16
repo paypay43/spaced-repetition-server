@@ -69,7 +69,7 @@ languageRouter
     let list;
     try {
       list = await LanguageService.getList(req.app.get('db'), req.language.id);
-
+      debugger;
       const head = list.head;
       let { translation } = head.value;
       let correct = false;
@@ -88,12 +88,12 @@ languageRouter
 
       //list = display(list);
 
-      /*await LanguageService.updateWords(
+      await LanguageService.updateWords(
         req.app.get('db'),
         list,
-        req.language_id,
+        req.language.id,
         req.language.total_score
-      );*/
+      );
 
       // correct or not, list.head
 

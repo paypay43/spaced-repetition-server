@@ -92,15 +92,27 @@ const LanguageService = {
       }*/
       debugger;
 
-      Promise.all([
-        db('language')
-          .transaction(trx)
+      return Promise.all([
+        trx('language')
           .where({ id: langId })
           .update({
             total_score: add,
-            head: list[0].value.id
-          })
-        /*, ...list.map(word => db.('word').transaction(trx).update()]*/
+            head: list[0].id
+          }),
+        ...list.map((word, i) => {
+          debugger;
+          let next;
+          if (i + 1 >= list.length) {
+            word.next = null;
+          } else {
+            word.next = list[i + 1].id;
+          }
+          return trx('word')
+            .where({ id: word.id })
+            .update({
+              ...word
+            });
+        })
       ]);
     });
   }
