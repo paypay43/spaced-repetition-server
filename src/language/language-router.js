@@ -86,7 +86,7 @@ languageRouter
       list.remove(head.value);
       list.insertAt(head.value, head.value.memory_value + 1);
 
-      //list = display(list);
+      list = display(list);
 
       await LanguageService.updateWords(
         req.app.get('db'),
