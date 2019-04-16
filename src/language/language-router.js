@@ -101,7 +101,7 @@ languageRouter
         req.app.get('db'),
         req.language.head
       );
-
+        // need to get current head from linklist instead of database, then change property names to what client expects
       res.send({ correct, ...nextWord, totalScore: req.language.total_score });
     } catch (error) {
       next(error);
