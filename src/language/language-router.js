@@ -86,7 +86,7 @@ languageRouter
       list.remove(head.value);
       list.insertAt(head.value, head.value.memory_value + 1);
 
-      list = display(list);
+      //list = display(list);
 
       await LanguageService.updateWords(
         req.app.get('db'),
@@ -96,6 +96,13 @@ languageRouter
       );
 
       // correct or not, list.head
+
+      const nextWord = await LanguageService.getNextWord(
+        req.app.get('db'),
+        req.language.head
+      );
+
+      res.send({ correct, ...nextWord, totalScore: req.language.total_score });
     } catch (error) {
       next(error);
     }
