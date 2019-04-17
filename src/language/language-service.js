@@ -15,18 +15,19 @@ const LanguageService = {
       .first();
   },
 
-  async getList(db, id) {
+  populateLinkedList(arr, language) {
     let list = new LinkedList();
-    let words;
 
-    words = await LanguageService.getLanguageWords(db, id);
+    let curr = arr.find(e => e.id === language.head);
+    list.insertLast(curr);
 
-    for (let i = 0; i < words.length; i++) {
-      list.insertLast(words[i]);
+    while (curr.next !== null) {
+      debugger;
+      curr = arr.find(e => e.id === curr.next);
+      list.insertLast(curr);
     }
     return list;
   },
-
   getLanguageWords(db, language_id) {
     return db
       .from('word')
@@ -90,7 +91,6 @@ const LanguageService = {
 
         debugger;
       }*/
-      debugger;
 
       return Promise.all([
         trx('language')
@@ -100,7 +100,6 @@ const LanguageService = {
             head: list[0].id
           }),
         ...list.map((word, i) => {
-          debugger;
           let next;
           if (i + 1 >= list.length) {
             word.next = null;
