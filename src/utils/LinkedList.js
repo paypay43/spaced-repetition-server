@@ -92,8 +92,8 @@ class LinkedList {
         this.insertFirst(item);
         return;
       } else {
-        console.log("position does'nt exist");
-        return null;
+        this.insertLast(item);
+        return;
       }
     }
     let currentPosition = 1;
@@ -105,8 +105,7 @@ class LinkedList {
       currentPosition++;
     }
     if (currNode === null) {
-      console.log('Position not found');
-      return;
+      this.insertLast(item);
     }
     let tempNode = currNode;
     prevNode.next = new _Node(item, tempNode);

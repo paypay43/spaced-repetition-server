@@ -42,7 +42,7 @@ languageRouter.get('/', async (req, res, next) => {
   }
 });
 
-languageRouter.use(requireAuth).get('/head', async (req, res, next) => {
+languageRouter.get('/head', async (req, res, next) => {
   try {
     const nextWord = await LanguageService.getNextWord(
       req.app.get('db'),
@@ -59,53 +59,56 @@ languageRouter.use(requireAuth).get('/head', async (req, res, next) => {
   }
 });
 
-languageRouter
-  .use(requireAuth)
-  .post('/guess', bodyParser, async (req, res, next) => {
-    const { guess } = req.body;
-    if (!guess) {
-      res.status(400).send({ error: "Missing 'guess' in request body" });
+languageRouter.post('/guess', bodyParser, async (req, res, next) => {
+  const { guess } = req.body;
+  if (!guess) {
+    return res.status(400).send({ error: "Missing 'guess' in request body" });
+  }
+  let list;
+  try {
+    const words = await LanguageService.getLanguageWords(
+      req.app.get('db'),
+      req.language.id
+    );
+    let list = await LanguageService.populateLinkedList(words, req.language);
+
+    const head = list.head;
+    let { translation } = head.value;
+    let correct = false;
+    if (guess === translation) {
+      correct = true;
+      head.value.memory_value *= 2;
+      head.value.correct_count++;
+      req.language.total_score++;
+    } else {
+      head.value.incorrect_count++;
+      head.value.memory_value = 1;
     }
-    let list;
-    try {
-      list = await LanguageService.getList(req.app.get('db'), req.language.id);
-      debugger;
-      const head = list.head;
-      let { translation } = head.value;
-      let correct = false;
-      if (guess === translation) {
-        correct = true;
-        head.value.memory_value *= 2;
-        head.value.correct_count++;
-        req.language.total_score++;
-      } else {
-        head.value.incorrect_count++;
-        head.value.memory_value = 1;
-      }
+    debugger;
+    list.remove(head.value);
+    list.insertAt(head.value, head.value.memory_value + 1);
 
-      list.remove(head.value);
-      list.insertAt(head.value, head.value.memory_value + 1);
+    await LanguageService.updateWords(
+      req.app.get('db'),
+      display(list),
+      req.language.id,
+      req.language.total_score
+    );
+    // correct or not, list.head
 
-      list = display(list);
+    const nextWord = list.head.value;
 
-      await LanguageService.updateWords(
-        req.app.get('db'),
-        list,
-        req.language.id,
-        req.language.total_score
-      );
-
-      // correct or not, list.head
-
-      const nextWord = await LanguageService.getNextWord(
-        req.app.get('db'),
-        req.language.head
-      );
-
-      res.send({ correct, ...nextWord, totalScore: req.language.total_score });
-    } catch (error) {
-      next(error);
-    }
-  });
+    res.send({
+      isCorrect: correct,
+      nextWord: nextWord.original,
+      totalScore: req.language.total_score,
+      wordCorrectCount: nextWord.correct_count,
+      wordIncorrectCount: nextWord.incorrect_count,
+      answer: translation
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = languageRouter;
