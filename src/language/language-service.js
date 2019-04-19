@@ -78,20 +78,6 @@ const LanguageService = {
 
   updateWords(db, list, langId, add) {
     return db.transaction(async trx => {
-      /*debugger;
-      await trx('language')
-        .where({ id: langId })
-        .update({
-          total_score: trx.raw('total_score + 1'),
-          head: list.head.value.id
-        });
-      let curr = list.head;
-      while (curr !== null) {
-        let value = curr.value;
-
-        debugger;
-      }*/
-
       return Promise.all([
         trx('language')
           .where({ id: langId })

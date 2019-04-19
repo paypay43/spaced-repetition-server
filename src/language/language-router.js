@@ -84,7 +84,6 @@ languageRouter.post('/guess', bodyParser, async (req, res, next) => {
       head.value.incorrect_count++;
       head.value.memory_value = 1;
     }
-    debugger;
     list.remove(head.value);
     list.insertAt(head.value, head.value.memory_value + 1);
 
